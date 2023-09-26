@@ -2,7 +2,7 @@
 Projeto e cadastramento de clientes para a Point Sistemas
 
 ### Softwares utilizados
-* Java 1.8
+* Java 11
 * Apache tomcat 8.5.93
 * PostgreSQL 16
 
