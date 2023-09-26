@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	template="WEB-INF/template/Layout.xhtml">
+
+	<ui:define name="title">
+	Cadastro de clientes
+	</ui:define>
+
+	<ui:define name="content">
+		<f:metadata>
+			<f:viewAction action="#{beanCustomers.customerList}" />
+		</f:metadata>
+
+		<h:form id="frm">
+			<p:messages id="messages" />
+
+			<p:toolbar id="toolbar">
+				<f:facet name="left">
+
+					<p:inputText id="termSearch" placeholder="Pesquisar cliente..."
+						value="#{beanCustomers.termSearch}" />
+
+					<p:commandButton value="Pesquisar" icon="fa fa-search"
+						actionListener="#{beanCustomers.search}"
+						update="clientsDataTable messages" process="@this termSearch" />
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:commandButton value="Novo cliente" icon="fa fa-plus"
+						actionListener="#{beanCustomers.prepareNewClient}"
+						oncomplete="PF('clientDialogWidgetVar').show()"
+						update="clientDialog" process="@this">
+
+						<p:resetInput target="clientDialog" />
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:commandButton title="Editar" icon="fa fa-edit"
+						disabled="#{not beanCustomers.clientSelect}"
+						oncomplete="PF('clientDialogWidgetVar').show()"
+						update="clientDialog" process="@this">
+
+						<p:resetInput target="clientDialog" />
+					</p:commandButton>
+
+					<p:commandButton title="Excluir" icon="fa fa-trash"
+						disabled="#{not beanCustomers.clientSelect}"
+						actionListener="#{beanCustomers.delete}"
+						update="messages clientsDataTable toolbar" process="@this">
+
+						<p:confirm icon="ui-icon-alert" header="Confirmação de exclusão"
+							message="Confirmar exclusão do cliente?" />
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+				</f:facet>
+			</p:toolbar>
+
+			<p:spacer height="1.25rem" />
+
+			<p:dataTable id="clientsDataTable"
+				value="#{beanCustomers.listClients}" var="client"
+				emptyMessage="Nenhum cliente cadastrado" paginator="true" rows="7"
+				paginatorPosition="bottom" selectionMode="single"
+				selection="#{beanCustomers.client}" rowKey="#{client.id}">
+
+				<p:ajax event="rowSelect" update="frm:toolbar" />
+
+				<p:ajax event="rowUnselect" update="frm:toolbar" />
+
+				<p:column headerText="Nome" sortBy="#{client.nome}">
+					<h:outputText value="#{client.nome}" />
+				</p:column>
+
+				<p:column headerText="CPF">
+					<h:outputText value="#{client.cpf}" />
+				</p:column>
+
+				<p:column headerText="Gênero">
+					<h:outputText value="#{client.genero}" />
+				</p:column>
+
+				<p:column headerText="Data de nascimento">
+					<h:outputText value="#{client.nascimento}">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+
+			</p:dataTable>
+
+			<p:dialog id="clientDialog" header="Novo cliente"
+				widgetVar="clientDialogWidgetVar" modal="true" resizable="false"
+				closeOnEscape="true">
+
+				<p:messages id="clientMessages" />
+
+				<p:defaultCommand target="toSaveCommandButton" scope="clientDialog" />
+
+				<h:panelGrid id="clientPanelGrid" columns="2"
+					rendered="#{beanCustomers.client ne null}">
+					<p:outputLabel value="Nome do cliente: " for="nome" />
+					<p:inputText id="nome" size="40" maxLength="50"
+						value="#{beanCustomers.client.nome}" />
+
+					<p:outputLabel value="CPF: " for="cpf" />
+					<p:inputMask id="cpf" mask="999.999.999-99" size="14"
+						maxLength="14" value="#{beanCustomers.client.cpf}" />
+
+					<p:outputLabel value="Gênero: " for="genero" />
+					<p:selectOneMenu id="genero" value="#{beanCustomers.client.genero}">
+						<f:selectItem itemLabel="Selecione..." />
+						<f:selectItems value="#{beanCustomers.genres}" var="gender"
+							itemLabel="#{genderType.description}" itemValue="#{gender}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Data de nascimento: " for="nascimento" />
+					<p:calendar id="nascimento" pattern="dd/MM/yyyy" size="30"
+						value="#{beanCustomers.client.nascimento}" />
+
+					<h:outputLabel />
+					<p:commandButton id="toSaveCommandButton" value="Salvar"
+						actionListener="#{beanCustomers.toSave}"
+						update="clientPanelGrid clientMessages"
+						oncomplete="if(!args.validationFailed)PF('clientDialogWidgetVar').hide()"
+						process="clientDialog" />
+
+				</h:panelGrid>
+			</p:dialog>
+		</h:form>
+	</ui:define>
+</ui:composition>
